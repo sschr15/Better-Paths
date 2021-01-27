@@ -10,7 +10,7 @@ import java.nio.channels.SeekableByteChannel
 import java.nio.charset.Charset
 import java.nio.file.*
 import java.nio.file.attribute.*
-import java.util.stream.Stream
+import java.util.stream.*
 import kotlin.reflect.KClass
 
 /*
@@ -139,10 +139,6 @@ fun Path.copyTo(out: OutputStream) = Files.copy(this, out)
 
 fun Path.readAllBytes(): ByteArray = Files.readAllBytes(this)
 
-fun Path.readString(): String = Files.readString(this)
-
-fun Path.readString(cs: Charset): String = Files.readString(this, cs)
-
 fun Path.readAllLines(cs: Charset): List<String> = Files.readAllLines(this, cs)
 
 fun Path.readAllLines(): List<String> = Files.readAllLines(this)
@@ -154,11 +150,6 @@ fun Path.write(lines: Iterable<CharSequence>, cs: Charset, vararg options: OpenO
 
 fun Path.write(lines: Iterable<CharSequence>, vararg options: OpenOption): Path =
     Files.write(this, lines, *options)
-
-fun Path.writeString(chars: CharSequence, vararg options: OpenOption): Path = Files.writeString(this, chars, *options)
-
-fun Path.writeString(chars: CharSequence, cs: Charset, vararg options: OpenOption): Path =
-    Files.writeString(this, chars, cs, *options)
 
 fun Path.list(): Stream<Path> = Files.list(this)
 
@@ -174,3 +165,18 @@ fun Path.find(maxDepth: Int, vararg options: FileVisitOption, matcher: (Path, Ba
 fun Path.lines(cs: Charset): Stream<String> = Files.lines(this, cs)
 
 fun Path.lines(): Stream<String> = Files.lines(this)
+
+/*
+ * These four methods below exist in Java 11, but not Java 8.
+ * Since this version is meant to compile to Java 8, the
+ * implementations found in Java 11 have been recreated.
+ */
+
+fun Path.writeString(chars: CharSequence, vararg options: OpenOption): Path = writeString(chars, Charsets.UTF_8, *options)
+
+fun Path.writeString(chars: CharSequence, cs: Charset, vararg options: OpenOption): Path =
+    Files.write(this, chars.toString().toByteArray(cs), *options)
+
+fun Path.readString(): String = readString(Charsets.UTF_8)
+
+fun Path.readString(cs: Charset): String = String(Files.readAllBytes(this), cs)

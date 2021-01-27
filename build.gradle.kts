@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "sschr15.tools"
-version = "1.0.0"
+version = "1.1.0"
 
 sourceSets {
     create("example") {
